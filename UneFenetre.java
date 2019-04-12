@@ -6,31 +6,41 @@ import javax.swing.*;
 
 class UneFenetre extends JFrame implements ActionListener 
 {
-    UnMobile sonMobile;
-    private final int LARG=800, HAUT=250;
-    JButton sonBouton ;
-    boolean marche = true ;
-    Thread laThread ;
+	final static int nombreMobiles = 10 ;
+    UnMobile[] sesMobiles;
+    private final int LARG=800, HAUT=90*nombreMobiles;
+    JButton[] sesBoutons ;
+    boolean[] etat ;
+    Thread [] lesThreads ;
     
     public UneFenetre()
     {
     	super("le Mobile") ;
     	
-    	this.setLayout(new GridLayout(1,2));
+    	this.setLayout(new GridLayout(nombreMobiles,2));
     	
-    	//Instanciation et ajout du mobile
-    	sonMobile = new UnMobile(LARG/2, HAUT) ;
-    	this.add(sonMobile);
+    	sesMobiles = new UnMobile[nombreMobiles] ;
+    	sesBoutons = new JButton[nombreMobiles] ;
+    	etat = new boolean[nombreMobiles];
+    	lesThreads = new Thread[nombreMobiles];
     	
-    	//Création de la Thread
-    	laThread = new Thread(sonMobile) ;
-    	laThread.start();
     	
-    	//Création et ajout du bouton
-    	sonBouton = new JButton("Marche/Arrêt");
-    	sonBouton.addActionListener(this);
-    	sonBouton.setMaximumSize(new Dimension(50,50));;
-    	this.add(sonBouton);
+    	for(int i=0; i<nombreMobiles; i++) {
+    		//Instanciation et ajout des mobiles
+    		sesMobiles[i] = new UnMobile(LARG/2, 90) ;
+    		this.add(sesMobiles[i]);
+    		
+        	//Création des Threads
+        	lesThreads[i] = new Thread(sesMobiles[i]) ;
+        	lesThreads[i].start();
+        	
+        	//Création et ajout des boutons
+        	sesBoutons[i] = new JButton("Marche/Arrêt");
+        	sesBoutons[i].addActionListener(this);
+        	this.add(sesBoutons[i]);
+        	
+        	etat[i]=true;
+    	}
     	
     	
     	//Ajustement de la fenêtre
@@ -39,16 +49,20 @@ class UneFenetre extends JFrame implements ActionListener
     }
 
 	public void actionPerformed(ActionEvent event) {
-		if(event.getSource() == sonBouton) {
-			if (marche) {
-				laThread.suspend();
-				marche = false;
-			}
-			
-			else {
-				laThread.resume();
-				marche = true ;
+		
+		for(int i=0; i<nombreMobiles; i++) {
+			if(event.getSource() == sesBoutons[i]) {
+				if (etat[i]) {
+					lesThreads[i].suspend();
+					etat[i] = false;
+				}
+				
+				else {
+					lesThreads[i].resume();
+					etat[i] = true ;
+				}
 			}
 		}
+		
 	}
 }
